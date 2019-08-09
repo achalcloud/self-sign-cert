@@ -1,0 +1,59 @@
+yum -y install mod_ssl
+service httpd restart
+mkdir /etc/httpd/ssl
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/httpd/ssl/apache.key -out /etc/httpd/ssl/apache.crt
+vim /etc/httpd/conf.d/test.conf
+
+do virtual hostinng entry with 443 port
+
+VirtualHost _default_:443
+
+SSLEngine on
+SSLCertificateFile /etc/httpd/ssl/apache.crt
+SSLCertificateKeyFile /etc/httpd/ssl/apache.key
+
+restart httpd
+
+
+LINK -- https://www.liquidweb.com/kb/how-to-create-a-self-signed-ssl-certificate-on-centos/
+
+<VirtualHost *:80>
+    DocumentRoot /www/example1
+    ServerName example.com
+        ServerAlias www.example.com
+   # ErrorLog /var/www/example2.com/error.log
+   # CustomLog /var/www/example2.com/requests.log combined
+
+<Directory /www/example1>
+    AllowOverride ALL
+    Require all granted
+</Directory>
+
+</VirtualHost>
+
+<VirtualHost *:443>
+    DocumentRoot /www/example1
+    ServerName www.example.com
+
+    # Other directives here
+SSLEngine on
+SSLCertificateKeyFile /etc/httpd/ssl/apache.key
+SSLCertificateFile /etc/httpd/ssl/apache.crt
+
+<Directory /www/example1>
+         AllowOverride All
+        Require all granted
+</Directory>
+
+</VirtualHost>
+
+
+_________________________________________________________
+
+for redirect http request to https
+
+---->>edit or create .htaccess file in your domain root directory and add these lines to redirect http to https.
+
+RewriteEngine On 
+RewriteCond %{HTTPS}  !=on 
+RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L] 
